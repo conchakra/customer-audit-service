@@ -114,33 +114,35 @@ public class CustomerController {
     }
 
     // ✅ UPDATE CUSTOMER
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CustomerEntity> updateCustomer(
-            @PathVariable Long id,
-            @RequestParam String name,
-            @RequestParam String phone,
-            @RequestParam String kyc,
-            @RequestParam(required = false) String aadhaar,
-            @RequestParam(required = false) String pan,
-            @RequestParam(required = false) MultipartFile photo)
-            throws IOException {
+  @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<CustomerEntity> updateCustomer(
+        @PathVariable Long id,
+        @RequestParam String name,
+        @RequestParam String phone,
+        @RequestParam String status,
+        @RequestParam String kyc,
+        @RequestParam(required = false) String aadhaar,
+        @RequestParam(required = false) String pan,
+        @RequestParam(required = false) MultipartFile photo)
+        throws IOException {
 
-        CustomerEntity existing = customerService.getCustomerById(id);
+    CustomerEntity existing = customerService.getCustomerById(id);
 
-        existing.setName(name);
-        existing.setPhone(phone);
-        existing.setKyc(kyc);
-        existing.setAadhaar(aadhaar);
-        existing.setPan(pan);
+    existing.setName(name);
+    existing.setPhone(phone);
+    existing.setStatus(status);   // ✅ IMPORTANT FIX
+    existing.setKyc(kyc);
+    existing.setAadhaar(aadhaar);
+    existing.setPan(pan);
 
-        if (photo != null && !photo.isEmpty()) {
-            String documentId = storageProvider.saveFile(photo);
-            existing.setPhoto(documentId);
-        }
-
-        return ResponseEntity.ok(
-                customerService.updateCustomer(id, existing));
+    if (photo != null && !photo.isEmpty()) {
+        String documentId = storageProvider.saveFile(photo);
+        existing.setPhoto(documentId);
     }
+
+    return ResponseEntity.ok(
+            customerService.updateCustomer(id, existing));
+}
 
     // ✅ DELETE CUSTOMER
     @DeleteMapping("/{customerId}")

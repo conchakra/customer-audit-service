@@ -27,10 +27,12 @@ public void doFilter(
     String path = req.getRequestURI();
 
     // ✅ Skip token check for customer APIs
-    if (path.startsWith("/customer/api/v1/customers")) {
-        chain.doFilter(request, response);
-        return;
-    }
+    if (path.startsWith("/customer/api/v1/customers")
+        || path.startsWith("/files/")) {
+
+    chain.doFilter(request, response);
+    return;
+}
 
     String authHeader = req.getHeader("Authorization");
 
