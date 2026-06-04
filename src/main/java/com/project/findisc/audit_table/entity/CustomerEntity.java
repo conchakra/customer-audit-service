@@ -27,9 +27,14 @@ public class CustomerEntity {
     private String kyc;
     private String aadhaar;
     private String pan;
+    @Column(name="photo")
     private String photo;
 
+    @Column(name="thumbnail")
+    private String thumbnail;
+    
     private LocalDateTime updatedAt;
+
 
     @PrePersist
     @PreUpdate
