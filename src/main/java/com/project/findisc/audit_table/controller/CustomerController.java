@@ -111,8 +111,7 @@ public ResponseEntity<CustomerEntity> createCustomer(
         @RequestParam String kyc,
         @RequestParam(required = false) String aadhaar,
         @RequestParam(required = false) String pan,
-        @RequestParam(required = false) MultipartFile photo,
-        @RequestParam(required = false) MultipartFile thumbnail)
+        @RequestParam(required = false) MultipartFile photo)
         throws IOException {
 
         CustomerEntity customer = new CustomerEntity();
@@ -121,18 +120,13 @@ public ResponseEntity<CustomerEntity> createCustomer(
         customer.setKyc(kyc);
         customer.setAadhaar(aadhaar);
         customer.setPan(pan);
+        
 if (photo != null && !photo.isEmpty()) {
 
     String photoId = storageProvider.saveFile(photo);
-
+    String thumbnailId = "thumb_" + photoId;
+customer.setThumbnail(thumbnailId);
     customer.setPhoto(photoId);
-}
-
-if (thumbnail != null && !thumbnail.isEmpty()) {
-
-    String thumbnailId = storageProvider.saveFile(thumbnail);
-
-    customer.setThumbnail(thumbnailId);
 }
 
         return ResponseEntity.ok(
@@ -149,8 +143,7 @@ public ResponseEntity<CustomerEntity> updateCustomer(
         @RequestParam String kyc,
         @RequestParam(required = false) String aadhaar,
         @RequestParam(required = false) String pan,
-        @RequestParam(required = false) MultipartFile photo,
-        @RequestParam(required = false) MultipartFile thumbnail)
+        @RequestParam(required = false) MultipartFile photo)
         throws IOException {
 
     CustomerEntity existing = customerService.getCustomerById(id);
@@ -167,13 +160,6 @@ public ResponseEntity<CustomerEntity> updateCustomer(
     String documentId = storageProvider.saveFile(photo);
 
     existing.setPhoto(documentId);
-}
-
-if (thumbnail != null && !thumbnail.isEmpty()) {
-
-    String thumbnailId = storageProvider.saveFile(thumbnail);
-
-    existing.setThumbnail(thumbnailId);
 }
 
     return ResponseEntity.ok(
