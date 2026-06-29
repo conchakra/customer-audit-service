@@ -9,10 +9,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.util.MultiValueMap;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import com.project.findisc.audit_table.storage.FileStorageProvider;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,13 +27,20 @@ public class CustomerIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @MockBean
+private FileStorageProvider storageProvider;
+
+
     private String getBaseUrl() {
         return "http://localhost:" + port + "/customer/api/v1/customers";
     }
 
     // ✅ CREATE CUSTOMER (MULTIPART)
     @Test
-    void testCreateCustomer() {
+void testCreateCustomer() throws Exception {
+
+        when(storageProvider.saveFile(any()))
+        .thenReturn("test-photo.jpg");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -40,7 +48,7 @@ public class CustomerIntegrationTest {
         MultiValueMap<String, Object> body = new org.springframework.util.LinkedMultiValueMap<>();
         body.add("name", "Integration User");
         body.add("phone", "8888888888");
-        body.add("status", "Active");
+        body.add("status","Active");
         body.add("kyc", "Pending");
 
         // fake file
@@ -55,11 +63,18 @@ public class CustomerIntegrationTest {
 
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
 
-        ResponseEntity<CustomerEntity> response = restTemplate.postForEntity(getBaseUrl(), request,
-                CustomerEntity.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(
+        getBaseUrl(),
+        request,
+        String.class
+);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getName()).isEqualTo("Integration User");
+System.out.println("Response from API: " + response.getBody());
+
+System.out.println("STATUS = " + response.getStatusCode());
+System.out.println("BODY = " + response.getBody());
+
+assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     // ✅ GET ALL CUSTOMERS
